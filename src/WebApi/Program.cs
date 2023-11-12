@@ -1,49 +1,90 @@
-namespace WebApi;
+using Application.Products.CreateProduct;
+using Application.Products.DeleteProduct;
+using Application.Products.GetProducts;
+using Application.Products.UpdateProduct;
+using Domain.Shared;
+using MediatR;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Persistence;
+using WebApi.Configurations;
 
-internal class Program
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("Database")));
+
+builder.Services.AddMediatR(cfg =>
+    cfg.RegisterServicesFromAssemblies(AppDomain.CurrentDomain.GetAssemblies()));
+
+var app = builder.Build();
+
+DbMigrationHelpers.EnsureSeedData(app).Wait();
+
+if (app.Environment.IsDevelopment())
 {
-    private static void Main(string[] args)
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+app.MapGet("api/products", async (IMediator sender) =>
+{
+    var result = await sender.Send(new GetProductsQuery());
+
+    return Results.Ok(result);
+})
+    .Produces<ProductResponse>(StatusCodes.Status200OK)
+    .Produces(StatusCodes.Status400BadRequest)
+    .WithName("GetProducts")
+    .WithTags("Products");
+
+app.MapPost("api/products",
+        async ([FromBody] CreateProductCommand request,
+            IMediator sender,
+            CancellationToken cancellationToken) =>
+        {
+            var result = await sender.Send(request, cancellationToken);
+
+            return Results.Ok(result);
+        })
+    .Produces<CreateProductCommand>(StatusCodes.Status201Created)
+    .Produces(StatusCodes.Status400BadRequest)
+    .WithName("PostProducts")
+    .WithTags("Products");
+
+app.MapPut("api/products/{productId}",
+    async (
+        Guid productId,
+        [FromBody] UpdateProductCommand request,
+        IMediator sender) =>
     {
-        var builder = WebApplication.CreateBuilder(args);
+        var command = new UpdateProductCommand(productId, request.Name, request.Price, request.Tags);
 
-        builder.Services.AddEndpointsApiExplorer();
-        builder.Services.AddSwaggerGen();
+        Result result = await sender.Send(command);
 
-        var app = builder.Build();
+        return result.IsFailure
+            ? Results.NotFound(result.Error)
+            : Results.Ok(result);
+    })
+    .Produces<UpdateProductCommand>(StatusCodes.Status200OK)
+    .Produces(StatusCodes.Status400BadRequest)
+    .WithName("PutProducts")
+    .WithTags("Products");
 
-        if (app.Environment.IsDevelopment())
-        {
-            app.UseSwagger();
-            app.UseSwaggerUI();
-        }
-
-        app.UseHttpsRedirection();
-
-        var summaries = new[]
-        {
-            "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-        };
-
-        app.MapGet("/weatherforecast", () =>
-            {
-                var forecast = Enumerable.Range(1, 5).Select(index =>
-                        new WeatherForecast
-                        (
-                            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                            Random.Shared.Next(-20, 55),
-                            summaries[Random.Shared.Next(summaries.Length)]
-                        ))
-                    .ToArray();
-                return forecast;
-            })
-            .WithName("GetWeatherForecast")
-            .WithOpenApi();
-
-        app.Run();
-    }
-}
-
-internal record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
+app.MapDelete("/products/{productId}", async (Guid productId, IMediator sender) =>
 {
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
+    await sender.Send(new DeleteProductCommand(productId));
+
+    return Results.NoContent();
+})
+    .Produces<DeleteProductCommand>(StatusCodes.Status200OK)
+    .Produces(StatusCodes.Status400BadRequest)
+    .WithName("DeleteProducts")
+    .WithTags("Products");
+
+app.UseHttpsRedirection();
+
+app.Run();
