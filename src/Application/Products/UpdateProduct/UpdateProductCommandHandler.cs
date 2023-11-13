@@ -1,5 +1,4 @@
 ﻿using Application.Abstractions.Messaging;
-using Domain.Products;
 using Domain.Shared;
 using Persistence;
 
@@ -13,7 +12,7 @@ public sealed class UpdateProductCommandHandler : ICommandHandler<UpdateProductC
 
     public async Task<Result> Handle(UpdateProductCommand request, CancellationToken cancellationToken)
     {
-        var product = await _context.Products.FindAsync(request.Id);
+        var product = await _context.Products.FindAsync(request.Id, cancellationToken);
 
         if (product == null)
         {

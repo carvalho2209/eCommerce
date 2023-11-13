@@ -25,12 +25,5 @@ internal class ProductsConfiguration : IEntityTypeConfiguration<Product>
                     (c1, c2) => c1.SequenceEqual(c2),
                     c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
                     c => (List<string>)c.ToList()));
-
-        //builder
-        //    .Property(x => x.Tags)
-        //    .HasConversion(
-        //        attempts => JsonSerializer.Serialize(attempts, (JsonSerializerOptions)null),
-        //        json => JsonSerializer.Deserialize<List<string>>(json, (JsonSerializerOptions)null)
-        //    );
     }
 }

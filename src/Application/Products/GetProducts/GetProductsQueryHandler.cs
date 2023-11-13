@@ -5,8 +5,7 @@ using Persistence;
 
 namespace Application.Products.GetProducts;
 
-public sealed class GetProductsQueryHandler :
-    IQueryHandler<GetProductsQuery, List<ProductResponse>>
+public sealed class GetProductsQueryHandler : IQueryHandler<GetProductsQuery, List<ProductResponse>>
 {
     private readonly ApplicationDbContext _context;
 
@@ -20,6 +19,6 @@ public sealed class GetProductsQueryHandler :
                 p.Id,
                 p.Name,
                 p.Price,
-                new List<string>(p.Tags)))
+                p.Tags))
             .ToListAsync(cancellationToken);
 }
