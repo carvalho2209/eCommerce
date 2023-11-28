@@ -11,14 +11,17 @@ public sealed class GetProductsQueryHandler : IQueryHandler<GetProductsQuery, Li
 
     public GetProductsQueryHandler(ApplicationDbContext context) => _context = context;
 
-    public async Task<Result<List<ProductResponse>>> Handle(GetProductsQuery request,
-        CancellationToken cancellationToken) => await
-        _context
-            .Products
-            .Select(p => new ProductResponse(
-                p.Id,
-                p.Name,
-                p.Price,
-                p.Tags))
-            .ToListAsync(cancellationToken);
+    public async Task<Result<List<ProductResponse>>> Handle(GetProductsQuery request, CancellationToken cancellationToken)
+        => await
+            _context
+                .Products
+                .Select(p => new ProductResponse(
+                    p.Id,
+                    p.Name,
+                    p.Price,
+                    p.Tags))
+                //.OrderBy(p => p.Id)
+                .Skip((request.Page - 1) * request.PageSize)
+                .Take(request.PageSize)
+                .ToListAsync(cancellationToken);
 }

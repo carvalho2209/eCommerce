@@ -11,8 +11,7 @@ public class LoggingPipelineBehavior<TRequest, TResponse>
 {
     private readonly ILogger<LoggingPipelineBehavior<TRequest, TResponse>> _logger;
 
-    public LoggingPipelineBehavior(
-        ILogger<LoggingPipelineBehavior<TRequest, TResponse>> logger)
+    public LoggingPipelineBehavior(ILogger<LoggingPipelineBehavior<TRequest, TResponse>> logger)
     {
         _logger = logger;
     }

@@ -12,9 +12,9 @@ public static class ProductsModule
 {
     public static void AddUserPoints(this IEndpointRouteBuilder app)
     {
-        app.MapGet("api/products", async (IMediator sender) =>
+        app.MapGet("api/products", async (int page, int pageSize, IMediator sender) =>
             {
-                var result = await sender.Send(new GetProductsQuery());
+                var result = await sender.Send(new GetProductsQuery(page, pageSize));
 
                 return Results.Ok(result);
             })
