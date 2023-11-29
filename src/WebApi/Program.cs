@@ -1,7 +1,9 @@
 using Application;
 using Application.Abstractions.Events;
 using Application.Behaviors;
+using Application.Caching;
 using Application.Products.CreateProduct;
+using Infrastructure.Caching;
 using Infrastructure.MessageBrokerSettings;
 using Infrastructure.Outbox;
 using MassTransit;
@@ -57,6 +59,9 @@ builder.Services.AddMediatR(ApplicationAssembly.Instance);
 
 builder.Services.AddScoped(
     typeof(IPipelineBehavior<,>), typeof(LoggingPipelineBehavior<,>));
+
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSingleton<ICacheService, CacheService>();
 
 var app = builder.Build();
 
