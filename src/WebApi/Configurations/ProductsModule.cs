@@ -5,6 +5,7 @@ using Application.Products.UpdateProduct;
 using Domain.Shared;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using WebApi.Authentication;
 
 namespace WebApi.Configurations;
 
@@ -12,9 +13,9 @@ public static class ProductsModule
 {
     public static void AddUserPoints(this IEndpointRouteBuilder app)
     {
-        app.MapGet("api/products", async (int page, int pageSize, IMediator sender) =>
+        app.MapGet("api/products", async (IMediator sender) =>
             {
-                var result = await sender.Send(new GetProductsQuery(page, pageSize));
+                var result = await sender.Send(new GetProductsQuery());
 
                 return Results.Ok(result);
             })
@@ -32,6 +33,7 @@ public static class ProductsModule
 
                     return Results.Ok(result);
                 })
+            .AddEndpointFilter<ApiKeyAuthenticationEndpointFilter>()
             .Produces<CreateProductCommand>(StatusCodes.Status201Created)
             .Produces(StatusCodes.Status400BadRequest)
             .WithName("PostProducts")
