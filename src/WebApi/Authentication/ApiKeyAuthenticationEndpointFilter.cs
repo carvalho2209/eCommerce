@@ -1,15 +1,8 @@
 ﻿namespace WebApi.Authentication;
 
-internal class ApiKeyAuthenticationEndpointFilter : IEndpointFilter
+internal class ApiKeyAuthenticationEndpointFilter(IConfiguration configuration) : IEndpointFilter
 {
     private const string ApiKeyHeaderName = "X-Api-Key";
-
-    private readonly IConfiguration _configuration;
-
-    public ApiKeyAuthenticationEndpointFilter(IConfiguration configuration)
-    {
-        _configuration = configuration;
-    }
 
     public async ValueTask<object?> InvokeAsync(
         EndpointFilterInvocationContext context,
@@ -32,7 +25,7 @@ internal class ApiKeyAuthenticationEndpointFilter : IEndpointFilter
             return false;
         }
 
-        string actualApiKey = _configuration.GetValue<string>("ApiKey")!;
+        string actualApiKey = configuration.GetValue<string>("ApiKey")!;
 
         return apiKey == actualApiKey;
     }

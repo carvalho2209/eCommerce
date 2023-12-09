@@ -11,10 +11,7 @@ public class CacheService : ICacheService
 
     private readonly IDistributedCache _distributedCache;
 
-    public CacheService(IDistributedCache distributedCache)
-    {
-        _distributedCache = distributedCache;
-    }
+    public CacheService(IDistributedCache distributedCache) => _distributedCache = distributedCache;
 
     public async Task<T?> GetAsync<T>(string key, CancellationToken cancellationToken = default)
         where T : class
@@ -69,14 +66,6 @@ public class CacheService : ICacheService
 
     public async Task RemoveByPrefixAsync(string prefixKey, CancellationToken cancellationToken = default)
     {
-        //foreach (string key in CacheKeys.Keys)
-        //{
-        //    if (key.StartsWith(prefixKey))
-        //    {
-        //        await RemoveAsync(key, cancellationToken);
-        //    }
-        //}
-
         IEnumerable<Task> tasks = CacheKeys
             .Keys
             .Where(k => k.StartsWith(prefixKey))

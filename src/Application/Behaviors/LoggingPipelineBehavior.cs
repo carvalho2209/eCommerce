@@ -4,24 +4,17 @@ using Microsoft.Extensions.Logging;
 
 namespace Application.Behaviors;
 
-public class LoggingPipelineBehavior<TRequest, TResponse>
+public class LoggingPipelineBehavior<TRequest, TResponse>(ILogger<LoggingPipelineBehavior<TRequest, TResponse>> logger)
     : IPipelineBehavior<TRequest, TResponse>
     where TRequest : IRequest<TResponse>
     where TResponse : Result
 {
-    private readonly ILogger<LoggingPipelineBehavior<TRequest, TResponse>> _logger;
-
-    public LoggingPipelineBehavior(ILogger<LoggingPipelineBehavior<TRequest, TResponse>> logger)
-    {
-        _logger = logger;
-    }
-
     public async Task<TResponse> Handle(
         TRequest request,
         RequestHandlerDelegate<TResponse> next,
         CancellationToken cancellationToken)
     {
-        _logger.LogInformation(
+        logger.LogInformation(
             "Starting request {@RequestName}, {@DateTimeUtc}",
             typeof(TRequest).Name,
             DateTime.UtcNow);
@@ -30,14 +23,14 @@ public class LoggingPipelineBehavior<TRequest, TResponse>
 
         if (result.IsFailure)
         {
-            _logger.LogError(
+            logger.LogError(
                 "Request failure {@RequestName}, {@Error}, {@DateTimeUtc}",
                 typeof(TRequest).Name,
                 result.Error,
                 DateTime.UtcNow);
         }
 
-        _logger.LogInformation(
+        logger.LogInformation(
             "Completed request {@RequestName}, {@DateTimeUtc}",
             typeof(TRequest).Name,
             DateTime.UtcNow);
