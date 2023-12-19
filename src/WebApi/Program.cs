@@ -1,7 +1,7 @@
 using Application;
+using Application.Abstractions.Caching;
 using Application.Abstractions.Events;
 using Application.Behaviors;
-using Application.Caching;
 using Application.Products.CreateProduct;
 using Infrastructure.Caching;
 using Infrastructure.MessageBrokerSettings;
@@ -17,7 +17,6 @@ using WebApi.Configurations;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer();
-
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddOptions<OutboxSettings>()

@@ -1,5 +1,5 @@
 ﻿using System.Collections.Concurrent;
-using Application.Caching;
+using Application.Abstractions.Caching;
 using Microsoft.Extensions.Caching.Distributed;
 using Newtonsoft.Json;
 

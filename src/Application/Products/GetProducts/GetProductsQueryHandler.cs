@@ -1,5 +1,5 @@
-﻿using Application.Abstractions.Messaging;
-using Application.Caching;
+﻿using Application.Abstractions.Caching;
+using Application.Abstractions.Messaging;
 using Domain.Shared;
 using Microsoft.EntityFrameworkCore;
 using Persistence;

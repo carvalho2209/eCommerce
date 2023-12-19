@@ -1,5 +1,6 @@
 ﻿using Application.Abstractions.Messaging;
 using Domain.Shared;
+using MediatR;
 using Persistence;
 
 namespace Application.Products.UpdateProduct;
@@ -7,8 +8,13 @@ namespace Application.Products.UpdateProduct;
 public sealed class UpdateProductCommandHandler : ICommandHandler<UpdateProductCommand>
 {
     private readonly ApplicationDbContext _context;
+    private readonly IPublisher _publisher;
 
-    public UpdateProductCommandHandler(ApplicationDbContext context) => _context = context;
+    public UpdateProductCommandHandler(ApplicationDbContext context, IPublisher publisher)
+    {
+        _context = context;
+        _publisher = publisher;
+    }
 
     public async Task<Result> Handle(UpdateProductCommand request, CancellationToken cancellationToken)
     {
@@ -28,6 +34,15 @@ public sealed class UpdateProductCommandHandler : ICommandHandler<UpdateProductC
         _context.Products.Update(product);
 
         await _context.SaveChangesAsync(cancellationToken);
+
+        await _publisher.Publish(
+            new ProductUpdatedEvent
+            {
+                Id = product.Id,
+                Name = product.Name,
+                Price = product.Price
+            },
+            cancellationToken);
 
         return Result.Success(product);
     }

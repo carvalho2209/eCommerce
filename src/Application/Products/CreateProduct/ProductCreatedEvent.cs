@@ -1,6 +1,8 @@
-﻿namespace Application.Products.CreateProduct;
+﻿using MediatR;
 
-public record ProductCreatedEvent
+namespace Application.Products.CreateProduct;
+
+public record ProductCreatedEvent : INotification
 {
     public Guid Id { get; set; }
     public string? Name { get; set; }
